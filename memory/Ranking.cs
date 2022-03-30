@@ -21,8 +21,17 @@ namespace memory
             InitializeComponent();
         }
 
-        private void fill_labes()
+        private void fill_labes(string path)
         {
+            if (!File.Exists(path))
+            {
+                StreamWriter sw = File.CreateText(path);
+                sw.WriteLine("Wojtek 20");
+                sw.WriteLine("Tomek 10");
+                sw.WriteLine("Tomek 5");
+                sw.WriteLine("Tomek 5");
+                sw.Close();
+            }
             List<string> lines = new List<string>(File.ReadAllLines("..\\..\\wyniki.txt"));
             label5.Text = lines[0] + " pkt";
             label6.Text = lines[1] + " pkt";
@@ -31,8 +40,8 @@ namespace memory
         }
         private void Ranking_Load(object sender, EventArgs e)
         {
-            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
-            fill_labes();
+            this.CenterToScreen();
+            fill_labes("..\\..\\wyniki.txt");
         }
 
         private void Ranking_FormClosing(object sender, FormClosingEventArgs e)

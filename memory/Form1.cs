@@ -228,7 +228,7 @@ namespace memory
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
+            this.CenterToScreen();
             this.WindowState = FormWindowState.Minimized;
             
         }

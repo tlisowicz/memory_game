@@ -16,6 +16,7 @@ namespace memory
         Form1 mainWindow;
         private int trackbar1_previous_val;
         private int trackbar4_previous_val;
+        private bool closing_by_x_bt = true;
         public Menu(Form1 form1)
         {
             InitializeComponent();
@@ -25,7 +26,7 @@ namespace memory
 
         private void Menu_Load(object sender, EventArgs e)
         {
-            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
+            this.CenterToScreen();
 
             //initiating labels' text
             label6.Text = (30 * trackBar1.Value).ToString() + " s";
@@ -45,7 +46,7 @@ namespace memory
         private void button1_Click(object sender, EventArgs e)
         {
             mainWindow.start_game();
-            this.Close();
+            this.Visible = false;
         }
 
 
@@ -102,6 +103,7 @@ namespace memory
 
         private void Menu_FormClosing(object sender, FormClosingEventArgs e)
         {
+            mainWindow.Close();
         }
     }
 }

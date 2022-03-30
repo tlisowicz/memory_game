@@ -1,4 +1,4 @@
-Wojtek 20
+Gracz1 150
 Tomek 10
 Tomek 5
-Tomek 5
+x -94

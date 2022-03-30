@@ -16,7 +16,6 @@ namespace memory
         Form1 mainWindow;
         private int trackbar1_previous_val;
         private int trackbar4_previous_val;
-        private bool closing_by_x_bt = true;
         public Menu(Form1 form1)
         {
             InitializeComponent();

@@ -20,6 +20,7 @@ namespace memory
         private Button firstClicked, secondClicked;
         private bool can_click = true;
         private float score_multiplier = 1.0F;
+        private int mismatch_cout = 0;
         private bool is_restart = false;
         private bool timer3_was_enabled = false;
 
@@ -118,11 +119,10 @@ namespace memory
                 if (firstClicked.BackgroundImage == secondClicked.BackgroundImage)
                 {
                     --pairs_left;
-                    Game_time += 3;
                     if (pairs_left == 0)
                     {
                         timer2.Stop();
-                        save_score((int)(Score_multiplier * (float)Game_time),"..\\..\\wyniki.txt");
+                        save_score((int)(Score_multiplier * (float)Game_time - mismatch_cout),"..\\..\\wyniki.txt");
                         ranking.label9.Text = "ZWYCIĘSTWO!";
                         ranking.Show();
                     }
@@ -131,7 +131,7 @@ namespace memory
                 }
                 else
                 {
-                    Game_time -= 2;
+                    mismatch_cout++;
                     timer3.Start();
                 }
             }
@@ -201,6 +201,10 @@ namespace memory
             }
             List<string> lines = new List<string>(File.ReadAllLines(path));
 
+            if (scores < 0)
+            {
+                scores = 0;
+            }
             foreach (string s in lines)
             {
                 int value = int.Parse(s.Split(' ')[1]);

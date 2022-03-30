@@ -52,6 +52,8 @@ namespace memory
                 {
                     mainWindow.Is_restart = true;
                     ranking_window_closing = false;
+                    this.Dispose();
+                    mainWindow.Dispose();
                     Application.Restart();
                     
                 }

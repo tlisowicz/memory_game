@@ -1,49 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
 
 namespace memory
 {
     public partial class Form1 : Form
     {
         Menu menu;
+        Ranking ranking;
         private List<Image> Cards;
-        private String nick;
-        private int rows;
-        private int columns;
+        private String nickname;
+        private int cards_number;
         private int game_time;
-        private int cards_heads_time;
+        private float cards_heads_time;
         private int cards_uncover_time;
-        private bool can_click = true;
+        private int pairs_left;
         private Button firstClicked, secondClicked;
+        private bool can_click = true;
+        private float score_multiplier = 1.0F;
+        private bool is_restart = false;
+        private bool timer3_was_enabled = false;
 
         public int Game_time { get => game_time; set => game_time = value; }
-        public int Cards_heads_time { get => cards_heads_time; set => cards_heads_time = value; }
+        public float Cards_heads_time { get => cards_heads_time; set => cards_heads_time = value; }
         public int Cards_uncover_time { get => cards_uncover_time; set => cards_uncover_time = value; }
-        public string Nick { get => nick; set => nick = value; }
-        public int Rows { get => rows; set => rows = value; }
-        public int Columns { get => columns; set => columns = value; }
+        public string Nickname { get => nickname; set => nickname = value; }
+        public int Cards_number { get => cards_number; set => cards_number = value; }
+        public float Score_multiplier { get => score_multiplier; set => score_multiplier = value; }
+        public int Pairs_left { get => pairs_left; set => pairs_left = value; }
+        public bool Is_restart { get => is_restart; set => is_restart = value; }
 
         public Form1()
         {
             InitializeComponent();
             menu = new Menu(this);
+            ranking = new Ranking(this);
             menu.Show();
         }
 
         public void start_game()
         {
+            load_cards_images();
+            adjust_panel(tableLayoutPanel1);
+            generate_cards();
+
+            Nickname = menu.textBox3.Text;
+            label2.Text = (5 * menu.trackBar2.Value).ToString() + " s";
+            WindowState = FormWindowState.Normal;
+            timer1.Start();
+
+        }
+
+        private void load_cards_images()
+        {
             Cards = new List<Image>();
-            Random random = new Random();
             string folder = "..\\..\\icons";
-            int how_many_icons = Rows * Columns / 2;
+            int how_many_icons = cards_number / 2;
             foreach (string file in Directory.EnumerateFiles(folder, "*.png"))
             {
                 how_many_icons--;
@@ -56,9 +70,13 @@ namespace memory
                 }
                 else break;
             }
-            adjust_panel(tableLayoutPanel1);
+        }
 
-            for (int i = 0; i < Rows * Columns; ++i)
+        private void generate_cards()
+        {
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            pairs_left = Cards.Count / 2;
+            for (int i = 0; i < Cards_number; ++i)
             {
                 Button picture = new Button();
                 picture.Size = MaximumSize;
@@ -71,10 +89,6 @@ namespace memory
 
                 tableLayoutPanel1.Controls.Add(picture);
             }
-            label2.Text = (5 * menu.trackBar2.Value).ToString() + " s";
-            WindowState = FormWindowState.Normal;
-            timer1.Start();
-
         }
         private void picture_Click(object sender, EventArgs e)
         {
@@ -85,6 +99,7 @@ namespace memory
 
             if (clickedCard == null)
                 return;
+
 
             if (clickedCard.Image == null)
                 return;
@@ -102,11 +117,21 @@ namespace memory
                 secondClicked.Image = null;
                 if (firstClicked.BackgroundImage == secondClicked.BackgroundImage)
                 {
+                    --pairs_left;
+                    Game_time += 3;
+                    if (pairs_left == 0)
+                    {
+                        timer2.Stop();
+                        save_score((int)(Score_multiplier * (float)Game_time),"..\\..\\wyniki.txt");
+                        ranking.label9.Text = "ZWYCIĘSTWO!";
+                        ranking.Show();
+                    }
                     firstClicked = null;
                     secondClicked = null;
                 }
                 else
                 {
+                    Game_time -= 2;
                     timer3.Start();
                 }
             }
@@ -116,42 +141,105 @@ namespace memory
             panel.Hide();
             panel.RowStyles.Clear();
             panel.ColumnStyles.Clear();
-            panel.ColumnCount = Columns;
-            panel.RowCount = Rows;
-            float RowHeight = panel.Height / (float)Rows;
-            float ColWidth = panel.Width / (float)Columns;
-            for (int i = 0; i < Rows; i++)
+            panel.ColumnCount = get_columns_rows_num()[0];
+            panel.RowCount = get_columns_rows_num()[1];
+            float RowHeight = panel.Height / (float)panel.RowCount;
+            float ColWidth = panel.Width / (float)panel.ColumnCount;
+            for (int i = 0; i < get_columns_rows_num()[1]; i++)
             {
                 panel.RowStyles.Add(new RowStyle(SizeType.Absolute, RowHeight));
             }
 
-            for (int j = 0; j < Columns; j++)
+            for (int j = 0; j < get_columns_rows_num()[0]; j++)
             {
                 panel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, ColWidth));
             }
             panel.Show();
         }
+
+        private int[] get_columns_rows_num()
+        {
+            switch (menu.trackBar4.Value)
+            {
+                case 4:
+                    return new int[2] { 8, 6 };
+
+                case 5:
+                    return  new int[2] { 10, 6 };
+
+                case 6:
+                    return new int[2] { 9, 8 };
+
+                case 7:
+                    return new int[2] { 12, 7 };
+
+                case 8:
+                    return new int[2] { 12, 8 };
+
+                case 9:
+                    return new int[2] { 12, 9 };
+
+                case 10:
+                    return new int[2] { 12, 10 };
+
+                default:
+                    return new int[2] { 8, 6 };
+
+            }
+        }
+
+        private void save_score(int scores, string path)
+        {
+            if (!File.Exists(path))
+            {
+                StreamWriter sw = File.CreateText(path);
+                sw.WriteLine("Wojtek 20");
+                sw.WriteLine("Tomek 10");
+                sw.WriteLine("Tomek 5");
+                sw.WriteLine("Tomek 5");
+                sw.Close();
+            }
+            List<string> lines = new List<string>(File.ReadAllLines(path));
+
+            foreach (string s in lines)
+            {
+                int value = int.Parse(s.Split(' ')[1]);
+                if (value <= scores)
+                {
+                    lines[lines.IndexOf(s)] = Nickname + " " + scores;
+                    break;
+                }
+            }
+            lines[lines.Count-1] = Nickname + " " + scores;
+            File.WriteAllLines(path, lines);
+        }
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Czy napewno chcesz zakończyć?", "Zamykanie", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
+            if (Is_restart == false)
             {
-                e.Cancel = true;
+                DialogResult response = MessageBox.Show("Czy napewno chcesz zakończyć?", "Zamykanie", MessageBoxButtons.OKCancel);
+                if (response == DialogResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
             }
+            
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 3, Screen.PrimaryScreen.Bounds.Height / 3);
+            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
             this.WindowState = FormWindowState.Minimized;
             
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (Cards_heads_time != 0)
+            if (Cards_uncover_time != 0)
             {
                 label1.Text = "Widoczność odwróconcyh kart:";
-                Cards_heads_time--;
-                label2.Text = Cards_heads_time.ToString() + " s";
+                Cards_uncover_time--;
+                label2.Text = Cards_uncover_time.ToString() + " s";
             }
             else
             {
@@ -159,7 +247,6 @@ namespace memory
                 label1.Text = "Pozostały czas:";
                 foreach (Button control in tableLayoutPanel1.Controls)
                 {
-                    var bmp = new Bitmap(78, 78);
                     control.Image = Image.FromFile("..\\..\\white.png");
                 }
                 timer1.Stop();
@@ -174,19 +261,23 @@ namespace memory
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //freezing
             if (timer2.Enabled)
             {
                 if (timer3.Enabled)
                 {
                     timer3.Stop();
+                    timer3_was_enabled = true;
                 }
                 timer2.Stop();
                 button1.Text = "Wznów";
                 can_click = false;
             }
-            else if (!timer1.Enabled)
+
+            //unfreezing
+            else if (!timer1.Enabled && !timer2.Enabled)
             {
-                if (!timer3.Enabled)
+                if (!timer3.Enabled && timer3_was_enabled)
                 {
                     timer3.Start();
                 }
@@ -199,20 +290,20 @@ namespace memory
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
             trackBar1.Value = menu.trackBar3.Value;
-            label4.Text = trackBar1.Value + " s";
+            label4.Text = 0.25 * trackBar1.Value + " s";
         }
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            Cards_uncover_time = trackBar1.Value;
+            Cards_heads_time = 0.25f * trackBar1.Value;
 
-            label4.Text = trackBar1.Value + " s";
+            label4.Text = 0.25f *trackBar1.Value + " s";
         }
 
         private void timer3_Tick(object sender, EventArgs e)
         {
-            cards_uncover_time--;
-            if (cards_uncover_time == 0)
+            Cards_heads_time -= 0.25f;
+            if (cards_heads_time == 0)
             {
                 timer3.Stop();
                 firstClicked.Image = Image.FromFile("..\\..\\white.png");
@@ -220,7 +311,7 @@ namespace memory
                 firstClicked = null;
                 secondClicked = null;
                 can_click = true;
-                cards_uncover_time = trackBar1.Value;
+                cards_heads_time = 0.25f * trackBar1.Value;
             }
             else
             {
@@ -231,23 +322,12 @@ namespace memory
         private void timer2_Tick(object sender, EventArgs e)
         {
             Game_time--;
-            if (Game_time == 0)
+            if (Game_time <= 0)
             {
                 timer2.Stop();
-                if (MessageBox.Show("Koniec czasu! Chcesz zagrać jeszcze raz?", "Niepowodzenie", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                {
-                    menu = new Menu(this);
-                    menu.Show();
-                    foreach (Button button in tableLayoutPanel1.Controls)
-                    {
-                        button.Image = null;
-                    }
+                ranking.label9.Text = "NIEPOWODZENIE!\nKoniec czasu";
+                ranking.Show();
 
-                    this.WindowState = FormWindowState.Minimized;
-                } else
-                {
-                    Environment.Exit(0);
-                }
             }
             label2.Text = Game_time.ToString() + " s";
         }

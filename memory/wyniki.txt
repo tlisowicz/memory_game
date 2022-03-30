@@ -1,0 +1,4 @@
+Gracz1 150
+Tomek 10
+Tomek 5
+Gracz1 150

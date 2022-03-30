@@ -14,9 +14,8 @@ namespace memory
     public partial class Menu : Form
     {
         Form1 mainWindow;
-        private int columns;
-        private int rows;
-
+        private int trackbar1_previous_val;
+        private int trackbar4_previous_val;
         public Menu(Form1 form1)
         {
             InitializeComponent();
@@ -26,24 +25,25 @@ namespace memory
 
         private void Menu_Load(object sender, EventArgs e)
         {
-            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 3, Screen.PrimaryScreen.Bounds.Height / 3);
+            this.SetDesktopLocation(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
 
             //initiating labels' text
             label6.Text = (30 * trackBar1.Value).ToString() + " s";
             label7.Text = (5 * trackBar2.Value).ToString() + " s";
-            label8.Text = (trackBar3.Value).ToString() + " s";
+            label8.Text = (0.25 * trackBar3.Value).ToString() + " s";
 
-            //initiating time variables
+            //initiating variables
             mainWindow.Game_time = int.Parse(label6.Text.Split(' ')[0]);
-            mainWindow.Cards_heads_time = int.Parse(label7.Text.Split(' ')[0]);
-            mainWindow.Cards_uncover_time = int.Parse(label8.Text.Split(' ')[0]);
-            rows = 6;
-            columns = 8;
+            mainWindow.Cards_heads_time = float.Parse(label8.Text.Split(' ')[0]);
+            mainWindow.Cards_uncover_time = int.Parse(label7.Text.Split(' ')[0]);
+            mainWindow.Cards_number = int.Parse(label10.Text);
+            trackbar1_previous_val = trackBar1.Value;
+            trackbar4_previous_val = trackBar4.Value;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            pass_Values(columns, rows);
             mainWindow.start_game();
             this.Close();
         }
@@ -53,48 +53,55 @@ namespace memory
         {
             label6.Text = (30* trackBar1.Value).ToString() + " s";
             mainWindow.Game_time = int.Parse(label6.Text.Split(' ')[0]);
+
+            if (trackBar1.Value - trackbar1_previous_val >= 0)
+            {
+                label11.Text = mainWindow.Score_multiplier - (float)1 / 7 + "X";
+            }
+            else
+            {
+                label11.Text = mainWindow.Score_multiplier + (float)1 / 5 + "X";
+            }
+            mainWindow.Score_multiplier = float.Parse(label11.Text.Split('X')[0]);
+            trackbar1_previous_val = trackBar1.Value;
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
             label7.Text = (5 * trackBar2.Value).ToString() + " s";
-            mainWindow.Cards_heads_time = int.Parse(label7.Text.Split(' ')[0]);
+            mainWindow.Cards_uncover_time = int.Parse(label7.Text.Split(' ')[0]);
         }
 
         private void trackBar3_Scroll(object sender, EventArgs e)
         {
-            label8.Text = (trackBar3.Value).ToString() + " s";
-            mainWindow.Cards_uncover_time = int.Parse(label8.Text.Split(' ')[0]);
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBox1.Text, out rows) == false || rows > 10)
-            {
-                rows = 6;
-                MessageBox.Show("Podano nieprawidłową wartość");
-            }
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            if (int.TryParse(textBox2.Text, out columns) == false || columns > 12)
-            {
-                columns = 8;
-                MessageBox.Show("Podano nieprawidłową wartość");
-            }
-        }
-
-        private void pass_Values(int col, int row)
-        {
-            mainWindow.Rows = row;
-            mainWindow.Columns = col;
+            label8.Text = (0.25 * trackBar3.Value).ToString() + " s";
+            mainWindow.Cards_heads_time = float.Parse(label8.Text.Split(' ')[0]);
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
-            mainWindow.Nick = textBox3.Text;
+            mainWindow.Nickname = textBox3.Text;
+        }
+
+        private void trackBar4_Scroll(object sender, EventArgs e)
+        {
+            if (trackBar4.Value - trackbar4_previous_val >= 0)
+            {
+                label11.Text = mainWindow.Score_multiplier + (float)1/5 + "X";
+            }
+            else
+            {
+                label11.Text = mainWindow.Score_multiplier - (float)1/ 5 + "X";
+            }
+            label10.Text = (12*trackBar4.Value).ToString();
+            mainWindow.Cards_number = int.Parse(label10.Text);
+
+            mainWindow.Score_multiplier = float.Parse(label11.Text.Split('X')[0]);
+            trackbar4_previous_val = trackBar4.Value;
+        }
+
+        private void Menu_FormClosing(object sender, FormClosingEventArgs e)
+        {
         }
     }
 }

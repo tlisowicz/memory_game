@@ -60,11 +60,11 @@
             this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 990F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 992F));
             this.tableLayoutPanel1.Location = new System.Drawing.Point(12, 33);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 607F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 609F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(980, 597);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
@@ -125,7 +125,7 @@
             // 
             // timer3
             // 
-            this.timer3.Interval = 1000;
+            this.timer3.Interval = 250;
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
             // Form1
@@ -141,6 +141,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);

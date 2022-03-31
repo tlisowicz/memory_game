@@ -56,11 +56,15 @@ namespace memory
 
             if (trackBar1.Value - trackbar1_previous_val >= 0)
             {
-                label11.Text = mainWindow.Score_multiplier - (float)1 / 7 + "X";
+                label11.Text = mainWindow.Score_multiplier - (float)1 / 2 + "X";
             }
             else
             {
-                label11.Text = mainWindow.Score_multiplier + (float)1 / 5 + "X";
+                label11.Text = mainWindow.Score_multiplier + (float)1 / 2 + "X";
+            }
+            if (float.Parse(label11.Text.Split('X')[0]) <= 0.3f)
+            {
+                label11.Text = 0.3f + "X";
             }
             mainWindow.Score_multiplier = float.Parse(label11.Text.Split('X')[0]);
             trackbar1_previous_val = trackBar1.Value;
@@ -93,6 +97,7 @@ namespace memory
             {
                 label11.Text = mainWindow.Score_multiplier - (float)1/ 5 + "X";
             }
+
             label10.Text = (12*trackBar4.Value).ToString();
             mainWindow.Cards_number = int.Parse(label10.Text);
 

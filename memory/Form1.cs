@@ -20,7 +20,7 @@ namespace memory
         private Button firstClicked, secondClicked;
         private bool can_click = true;
         private float score_multiplier = 1.0F;
-        private int mismatch_cout = 0;
+        private int scores = 0;
         private bool is_restart = false;
         private bool timer3_was_enabled = false;
 
@@ -119,10 +119,12 @@ namespace memory
                 if (firstClicked.BackgroundImage == secondClicked.BackgroundImage)
                 {
                     --pairs_left;
+                    scores += 3;
                     if (pairs_left == 0)
                     {
                         timer2.Stop();
-                        save_score((int)(Score_multiplier * (float)Game_time - mismatch_cout),"..\\..\\wyniki.txt");
+                        int final_score = (int)(Score_multiplier * ((float)Game_time + (float)scores));
+                        save_score((int)(final_score),"..\\..\\wyniki.txt");
                         ranking.label9.Text = "ZWYCIĘSTWO!";
                         ranking.Show();
                     }
@@ -131,7 +133,7 @@ namespace memory
                 }
                 else
                 {
-                    mismatch_cout++;
+                    scores-=1;
                     timer3.Start();
                 }
             }
@@ -143,8 +145,8 @@ namespace memory
             panel.ColumnStyles.Clear();
             panel.ColumnCount = get_columns_rows_num()[0];
             panel.RowCount = get_columns_rows_num()[1];
-            float RowHeight = panel.Height / (float)panel.RowCount;
-            float ColWidth = panel.Width / (float)panel.ColumnCount;
+            float RowHeight = panel.Height / (float)panel.RowCount - 2;
+            float ColWidth = panel.Width / (float)panel.ColumnCount - 2;
             for (int i = 0; i < get_columns_rows_num()[1]; i++)
             {
                 panel.RowStyles.Add(new RowStyle(SizeType.Absolute, RowHeight));
